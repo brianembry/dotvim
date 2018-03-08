@@ -10,7 +10,7 @@
 
 " dotvim settings {{{
   let s:settings = {}
-  let s:settings.colorscheme = 'jellybeans'
+  let s:settings.colorscheme = 'desert'
   let s:settings.default_indent = 2
   let g:autostrip = 1
 
@@ -142,6 +142,44 @@ set hidden
 " note: the final ';' is important. tells it to search upwards for semicolon
 set tags=.tags;
 
+" Set options for 'list'
+set listchars=tab:>-,trail:%,extends:>,precedes:<
+set list
+
+if has("cscope")
+    set csprg=gtags-cscope
+    set csto=0
+    set cst
+    set nocsverb
+    " add any database in current directory
+    if filereadable("GTAGS")
+        cs add GTAGS
+    endif
+    set csverb
+
+    :nmap <leader>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+endif
+
+"Line Number macros
+set number
+function! NumberToggle()
+  if(&relativenumber == 1)
+    set number
+  else
+    set relativenumber
+  endif
+endfunc
+
+nnoremap <C-p> :set paste!<cr>
+
+highlight LineNr term=bold cterm=NONE ctermfg=Grey ctermbg=NONE gui=NONE guifg=Grey guibg=NONE
+hi DiffAdd      ctermbg=4
+hi DiffChange   ctermbg=5 ctermbg=10
+hi DiffDelete   cterm=bold ctermfg=4 ctermbg=6
+hi DiffText     cterm=bold ctermbg=1
+
+nnoremap <C-n> :call NumberToggle()<cr>
+
 " improve gui on mac
 if s:is_macvim
   set antialias
@@ -239,12 +277,6 @@ call dein#add('rgarver/Kwbd.vim') "{{{
   map <leader>q <Plug>Kwbd
 "}}}
 
-" color schemes
-call dein#add('wesgibbs/vim-irblack')
-call dein#add('nanotech/jellybeans.vim')
-call dein#add('tomasr/molokai')
-call dein#add('sjl/badwolf')
-
 " languages
 call dein#add('rust-lang/rust.vim') "{{{
   autocmd FileType rust nnoremap <buffer><Leader>cf :RustFmt<CR>
@@ -254,7 +286,7 @@ call dein#add('cespare/vim-toml')
 
 call dein#add('genoma/vim-less')
 call dein#add('leafgarland/typescript-vim')
-call dein#add('fatih/vim-go')
+call dein#add('fatih/vim-go', {'autoload':{'insert':1}, 'vim_version':'7.4.1689'})
 
 " typescript tooling
 call dein#add('Quramy/tsuquyomi') "{{{
