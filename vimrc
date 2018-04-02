@@ -136,6 +136,7 @@ set incsearch
 set hlsearch
 set ffs=unix,dos
 set hidden
+set backspace=indent,eol,start
 
 " set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
 
@@ -184,6 +185,11 @@ nnoremap <C-n> :call NumberToggle()<cr>
 if s:is_macvim
   set antialias
   set guifont=Menlo:h14
+endif
+
+if s:is_windows
+  set antialias
+  set guifont=Lucida_Console:h10:cDEFAULT
 endif
 
 " vim file/folder management {{{
