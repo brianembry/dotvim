@@ -60,11 +60,6 @@
     endif
   endfunction "}}}
 
-  function! DeinClean()
-    " https://github.com/Shougo/dein.vim/issues/71
-    map(dein#check_clean(), "delete(v:val, 'rf')")
-  endfunction
-
   function! SwitchToTest()
     let dest = ""
     if expand("%") =~ "_test\\.cpp"
@@ -98,26 +93,25 @@
 "}}}
 
 
-" setup & dein {{{
+" setup & vim-plug {{{
 
   set nocompatible
   if s:is_windows
     set runtimepath+=~/.vim
   endif
 
-  if !isdirectory(expand('~/.vim/dein/dein.vim'))
-      call mkdir(expand('~/.vim/dein'))
-      echo "Cloning https://github.com/Shougo/dein.vim..."
-      exe 'silent !git -C ~/.vim/dein clone --quiet https://github.com/Shougo/dein.vim'
+  let s:first_install = 0
+  if !isdirectory(expand('~/.vim/plugged'))
+      call mkdir(expand('~/.vim/plugged'))
+      let s:first_install = 1
   endif
-
-  set runtimepath+=~/.vim/dein/dein.vim
-
-  call dein#begin(expand('~/.vim/dein/'))
-  call dein#add(expand('~/.vim/dein/dein.vim'))
+  if !filereadable(expand('~/.vim/autoload/plug.vim'))
+      echo "Installing vim-plug..."
+      exe 'silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+                  \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  endif
+  call plug#begin('~/.vim/plugged')
 " }}}
-
-
 
 
 syn on
@@ -219,11 +213,11 @@ endif
 " plugins {{{
 
 " add vimproc first for other things that depend on it
-call dein#add('Shougo/vimproc.vim', { 'build' : 'make' })
+Plug 'Shougo/vimproc.vim', { 'do' : 'make' }
 
 " fuzzy file/tag searching
-call dein#add('junegunn/fzf', { 'build': './install --all', 'merged': 0 })
-call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
+Plug 'junegunn/fzf', { 'build': './install --all', 'merged': 0 }
+Plug 'junegunn/fzf.vim', { 'depends': 'fzf' }
 
   map <leader>t :GFiles<cr>
   map <leader>T :Files<cr>
@@ -249,23 +243,23 @@ call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
     \   <bang>0)
 
 " yank history
-call dein#add('vim-scripts/YankRing.vim') "{{{
+Plug 'vim-scripts/YankRing.vim' "{{{
   nnoremap <leader>P :YRShow<CR>
 "}}}
 
 " statusline and tabline
-call dein#add('vim-airline/vim-airline') "{{{
+Plug 'vim-airline/vim-airline' "{{{
   let g:airline#extensions#tabline#enabled = 1
   let g:airline#extensions#syntastic#enabled = 1
 "}}}
-call dein#add('vim-airline/vim-airline-themes')
+Plug 'vim-airline/vim-airline-themes'
 
 " commenting
-call dein#add('scrooloose/nerdcommenter')
+Plug 'scrooloose/nerdcommenter'
 
 " auto complete!
 if has('lua')
-  call dein#add('Shougo/neocomplete.vim', {'autoload':{'insert':1}, 'vim_version':'7.3.885'}) "{{{
+  Plug 'Shougo/neocomplete.vim', {'autoload':{'insert':1}, 'vim_version':'7.3.885'} "{{{
     let g:neocomplete#enable_at_startup=1
     let g:neocomplete#data_directory=s:get_cache_dir('neocomplete')
     let g:neocomplete#sources#syntax#min_keyword_length = 3
@@ -276,37 +270,37 @@ if has('lua')
 endif
 
 " allows closing buffer w/o closing window!
-call dein#add('rgarver/Kwbd.vim') "{{{
+Plug 'rgarver/Kwbd.vim' "{{{
   map <leader>q <Plug>Kwbd
 "}}}
 
 " languages
-call dein#add('rust-lang/rust.vim') "{{{
+Plug 'rust-lang/rust.vim' "{{{
   autocmd FileType rust nnoremap <buffer><Leader>cf :RustFmt<CR>
   autocmd FileType rust vnoremap <buffer><Leader>cf :RustFmt<CR>
 "}}}
-call dein#add('cespare/vim-toml')
+Plug 'cespare/vim-toml'
 
-call dein#add('genoma/vim-less')
-call dein#add('leafgarland/typescript-vim')
-call dein#add('fatih/vim-go', {'autoload':{'insert':1}, 'vim_version':'7.4.1689'})
+Plug 'genoma/vim-less'
+Plug 'leafgarland/typescript-vim'
+Plug 'fatih/vim-go', {'autoload':{'insert':1}, 'vim_version':'7.4.1689'}
 
 " typescript tooling
-call dein#add('Quramy/tsuquyomi') "{{{
+Plug 'Quramy/tsuquyomi' "{{{
   " match sublime text mappings
   map <c-t><c-d> :TsuquyomiDefinition<CR>
   map <c-t><c-r> :TsuquyomiReferences<CR>
 "}}}
 
 " linting / syntax checking
-call dein#add('rhysd/vim-clang-format') "{{{
+Plug 'rhysd/vim-clang-format' "{{{
   autocmd FileType c,cpp nnoremap <buffer><Leader>cf :ClangFormat<CR>
   autocmd FileType c,cpp vnoremap <buffer><Leader>cf :ClangFormat<CR>
   " Toggle auto formatting:
   " autocmd FileType c,cpp ClangFormatAutoEnable
 "}}}
 
-call dein#add('scrooloose/syntastic')
+Plug 'scrooloose/syntastic'
 "let g:syntastic_check_on_open = 1
 "let g:syntastic_check_on_wq = 0
 let g:syntastic_typescript_checkers = ['tslint']
@@ -318,10 +312,10 @@ let g:syntastic_mode_map = {
 
 map <leader>l :SyntasticCheck<CR>
 
-call dein#add('tpope/vim-fugitive')
+Plug 'tpope/vim-fugitive'
 
 " file browsing
-call dein#add('scrooloose/nerdtree', {'autoload':{'commands':['NERDTreeToggle','NERDTreeFind']}}) "{{{
+Plug 'scrooloose/nerdtree', {'autoload':{'commands':['NERDTreeToggle','NERDTreeFind']}} "{{{
   let NERDTreeShowHidden=1
   let NERDTreeQuitOnOpen=0
   let NERDTreeShowLineNumbers=0
@@ -335,7 +329,7 @@ call dein#add('scrooloose/nerdtree', {'autoload':{'commands':['NERDTreeToggle','
   " open dir tree to current file
   nnoremap <leader>O :NERDTreeFind<CR>
 "}}}
-call dein#add('Xuyuanp/nerdtree-git-plugin')
+Plug 'Xuyuanp/nerdtree-git-plugin'
 
 " misc. key mappings {{{
 
@@ -381,10 +375,10 @@ command Wq :wq
     endfor
   endif
 
-  call dein#end()
+  call plug#end()
 
-  if dein#check_install()
-    call dein#install()
+  if s:first_install
+    exec 'PlugInstall'
   endif
 
   filetype plugin indent on
