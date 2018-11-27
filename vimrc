@@ -141,7 +141,7 @@ set backspace=indent,eol,start
 " set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
 
 " note: the final ';' is important. tells it to search upwards for semicolon
-set tags=.tags;
+"set tags=.tags;
 
 " Set options for 'list'
 set listchars=tab:>-,trail:%,extends:>,precedes:<
@@ -222,34 +222,31 @@ endif
 call dein#add('Shougo/vimproc.vim', { 'build' : 'make' })
 
 " fuzzy file/tag searching
-call dein#add('ctrlpvim/ctrlp.vim') "{{{
+call dein#add('junegunn/fzf', { 'build': './install --all', 'merged': 0 })
+call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
 
-  noremap <leader>t :CtrlP<CR>
-  noremap <leader>r :CtrlPTag<cr>
-  noremap <leader>R :CtrlPBufTag<cr>
+  map <leader>t :GFiles<cr>
+  map <leader>T :Files<cr>
+  map <leader>r :Tags<cr>
+  map <leader>R :BTags<cr>
+  let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h | %<(20,trunc)%an | %s"'
 
-  let g:ctrlp_match_window_reversed = 0
-  let g:ctrlp_root_markers = ['.agignore', '.gitignore']
-  " just use the directory vim is started in
-  let g:ctrlp_working_path_mode = ''
-
-  let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
-
-  if isdirectory('.git')
-    let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
-  elseif executable('ag')
-    let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
-          \ --ignore .git
-          \ --ignore .svn
-          \ --ignore .hg
-          \ --ignore .DS_Store
-          \ --ignore "**/*.pyc"
-          \ -g ""'
-  endif
-"}}}
-
-" searching
-call dein#add('jremmen/vim-ripgrep')
+  " --column: Show column number
+  " --line-number: Show line number
+  " --no-heading: Do not show file headings in results
+  " --fixed-strings: Search term as a literal string
+  " --ignore-case: Case insensitive search
+  " --no-ignore: Do not respect .gitignore, etc...
+  " --hidden: Search hidden files and folders
+  " --follow: Follow symlinks
+  " --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+  " --color: Search color options
+  command! -bang -nargs=* Rg
+    \ call fzf#vim#grep(
+    \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+    \   <bang>0 ? fzf#vim#with_preview('up:60%')
+    \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+    \   <bang>0)
 
 " yank history
 call dein#add('vim-scripts/YankRing.vim') "{{{
@@ -397,4 +394,3 @@ command Wq :wq
   endif
 
 "}}}
-
