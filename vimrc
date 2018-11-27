@@ -216,7 +216,7 @@ endif
 Plug 'Shougo/vimproc.vim', { 'do' : 'make' }
 
 " fuzzy file/tag searching
-Plug 'junegunn/fzf', { 'build': './install --all', 'merged': 0 }
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim', { 'depends': 'fzf' }
 
   map <leader>t :GFiles<cr>
